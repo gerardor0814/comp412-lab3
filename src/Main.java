@@ -40,6 +40,7 @@ public class Main {
             allocator.rename(parser.getMaxSR());
             GraphBuilder graphBuilder = new GraphBuilder(parser.getHead());
             graphBuilder.build();
+            System.out.println(graphBuilder.getGraphMap());
         } else {
             System.err.println("Due to syntax errors, run terminates");
         }
