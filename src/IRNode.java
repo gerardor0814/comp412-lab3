@@ -129,7 +129,7 @@ public class IRNode {
                 body = "";
             }
         }
-        return operation + body;
+        return this.line + ":   " + operation + body;
     }
 
     public String reallocatedString() {
@@ -216,6 +216,6 @@ public class IRNode {
                 body = "[ ], [ ], [ ]";
             }
         }
-        return index + ": " + operation + body;
+        return line + ": " + operation + body;
     }
 }
