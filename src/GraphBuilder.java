@@ -51,24 +51,25 @@ public class GraphBuilder {
                         //use
                         currentGraphNode.addSuccessor(currentNode.getVR(1), this.graphMap.get(currentNode.getVR(1)));
                         this.graphMap.get(currentNode.getVR(1)).addPredecessor(currentNode.getVR(1), currentGraphNode);
-                        currentGraphNode.addUsedNode(currentNode.getVR(1));
+                        currentGraphNode.addUsedNode(this.graphMap.get(currentNode.getVR(1)).getIndex());
 
                         //use
                         currentGraphNode.addSuccessor(currentNode.getVR(3), this.graphMap.get(currentNode.getVR(3)));
                         this.graphMap.get(currentNode.getVR(3)).addPredecessor(currentNode.getVR(3), currentGraphNode);
-                        currentGraphNode.addUsedNode(currentNode.getVR(3));
+                        currentGraphNode.addUsedNode(this.graphMap.get(currentNode.getVR(3)).getIndex());
 
                         // serial edge
                         int graphNodeIndex = graphNodeList.size() - 1;
                         while (prevNode != null) {
+                            if (!currentGraphNode.hasSuccessor(graphNodeList.get(graphNodeIndex).getIndex())) {
+                                if (prevNode.getOpCategory() == 0 || prevNode.getOpCategory() == 3) {
+                                    currentGraphNode.addSuccessor(-2, graphNodeList.get(graphNodeIndex));
+                                    currentGraphNode.addUsedNode(graphNodeList.get(graphNodeIndex).getIndex());
+                                }
+                            }
                             if (prevNode.getOpCategory() == 0 && prevNode.getOpCode() != 0) {
                                 break;
                             }
-
-                            if ((prevNode.getOpCategory() == 0 && prevNode.getOpCode() == 0) || prevNode.getOpCategory() == 3) {
-                                currentGraphNode.addSuccessor(-2, graphNodeList.get(graphNodeIndex));
-                            }
-
                             graphNodeIndex--;
                             prevNode = prevNode.getPrev();
                         }
@@ -105,8 +106,24 @@ public class GraphBuilder {
                             // store
                             if (prevNode.getOpCategory() == 0 && prevNode.getOpCode() != 0) {
                                 currentGraphNode.addSuccessor(-1, graphNodeList.getLast());
+                                currentGraphNode.addUsedNode(graphNodeList.getLast().getIndex());
+
                             }
                         }
+                        prevNode = prevNode.getPrev();
+                        int graphNodeIndex = graphNodeList.size() - 2;
+                        while (prevNode != null) {
+                            if (!currentGraphNode.hasSuccessor(graphNodeList.get(graphNodeIndex).getIndex())) {
+                                if (prevNode.getOpCategory() == 3) {
+                                    currentGraphNode.addSuccessor(-1, graphNodeList.get(graphNodeIndex));
+                                    currentGraphNode.addUsedNode(graphNodeList.get(graphNodeIndex).getIndex());
+                                }
+                            }
+                            graphNodeIndex--;
+                            prevNode = prevNode.getPrev();
+                        }
+
+
                     }
                 }
             graphNodeList.add(currentGraphNode);
