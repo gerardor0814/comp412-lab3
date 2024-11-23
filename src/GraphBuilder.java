@@ -109,8 +109,9 @@ public class GraphBuilder {
                                 currentGraphNode.addUsedNode(graphNodeList.getLast().getIndex());
 
                             }
+                            prevNode = prevNode.getPrev();
+
                         }
-                        prevNode = prevNode.getPrev();
                         int graphNodeIndex = graphNodeList.size() - 2;
                         while (prevNode != null) {
                             if (!currentGraphNode.hasSuccessor(graphNodeList.get(graphNodeIndex).getIndex())) {
@@ -129,6 +130,12 @@ public class GraphBuilder {
             graphNodeList.add(currentGraphNode);
             prevNode = currentNode;
             currentNode = currentNode.getNext();
+        }
+    }
+
+    public void makePriorityList() {
+        for (int i = graphNodeList.size(); i >= 0; i--) {
+
         }
     }
 
