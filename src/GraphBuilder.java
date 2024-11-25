@@ -150,7 +150,7 @@ public class GraphBuilder {
                     maxPredecessorPriority = node.y().getPriority();
                 }
             }
-            currentNode.setPriority(maxPredecessorPriority + (currentNode.getDelay() * 10) + 1);
+            currentNode.setPriority(maxPredecessorPriority + (currentNode.getDelay() * 10) + currentNode.getSuccessors().size());
             maxPredecessorPriority = 0;
         }
     }
@@ -168,6 +168,7 @@ public class GraphBuilder {
         }
 
         GraphNode currentNode1;
+        GraphNode currentNode2;
         int currentPrio;
 
         while (!(ready.isEmpty() && active.isEmpty())) {
@@ -184,11 +185,34 @@ public class GraphBuilder {
                 active.put(currentNode1, currentNode1.getDelay() + cycle);
             }
 
-            if (currentNode1 != null) {
-                System.out.println(currentNode1.getLabel());
-            } else {
-                System.out.println("nop");
+            currentPrio = -1;
+            currentNode2 = null;
+            if (!ready.isEmpty()) {
+                for (Map.Entry<GraphNode, Integer> entry : ready.entrySet()) {
+                    if (entry.getValue() > currentPrio) {
+                        currentNode2 = entry.getKey();
+                        currentPrio = entry.getValue();
+                    }
+                }
+                ready.remove(currentNode2);
+                active.put(currentNode2, currentNode2.getDelay() + cycle);
             }
+
+            System.out.print("[ ");
+            if (currentNode1 != null) {
+                System.out.print(currentNode1.getLabel().substring(6));
+            } else {
+                System.out.print("nop");
+            }
+
+            System.out.print(" ; ");
+            if (currentNode2 != null) {
+                System.out.print(currentNode2.getLabel().substring(6));
+            } else {
+                System.out.print("nop");
+            }
+
+            System.out.println(" ]");
 
             cycle++;
 
