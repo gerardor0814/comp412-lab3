@@ -33,6 +33,7 @@ public class GraphBuilder {
                             // store
                             if (prevNode.getOpCategory() == 0 && prevNode.getOpCode() != 0) {
                                 currentGraphNode.addSuccessor(-1, graphNodeList.getLast());
+                                graphNodeList.getLast().addPredecessor(-1, currentGraphNode);
                             }
                         }
                         // use
@@ -61,6 +62,7 @@ public class GraphBuilder {
                             if (!currentGraphNode.hasSuccessor(graphNodeList.get(graphNodeIndex).getIndex())) {
                                 if (prevNode.getOpCategory() == 0 || prevNode.getOpCategory() == 3) {
                                     currentGraphNode.addSuccessor(-2, graphNodeList.get(graphNodeIndex));
+                                    graphNodeList.get(graphNodeIndex).addPredecessor(-2, currentGraphNode);
                                     currentGraphNode.addUsedNode(graphNodeList.get(graphNodeIndex).getIndex());
                                 }
                             }
@@ -71,7 +73,7 @@ public class GraphBuilder {
                             prevNode = prevNode.getPrev();
                         }
                         }
-                    currentGraphNode.setPriority(6);
+                    currentGraphNode.setDelay(6);
                     }
                     case 1 -> {
                         // loadI
@@ -79,7 +81,7 @@ public class GraphBuilder {
                         // def
                         this.graphMap.put(currentNode.getVR(3), currentGraphNode);
 
-                        currentGraphNode.setPriority(1);
+                        currentGraphNode.setDelay(1);
 
                     }
                     case 2 -> {
@@ -97,9 +99,9 @@ public class GraphBuilder {
                         this.graphMap.put(currentNode.getVR(3), currentGraphNode);
 
                         if (currentNode.getOpCode() == 2) {
-                            currentGraphNode.setPriority(3);
+                            currentGraphNode.setDelay(3);
                         } else {
-                            currentGraphNode.setPriority(1);
+                            currentGraphNode.setDelay(1);
                         }
 
                     }
@@ -111,6 +113,7 @@ public class GraphBuilder {
                             // store
                             if (prevNode.getOpCategory() == 0 && prevNode.getOpCode() != 0) {
                                 currentGraphNode.addSuccessor(-1, graphNodeList.getLast());
+                                graphNodeList.getLast().addPredecessor(-1, currentGraphNode);
                                 currentGraphNode.addUsedNode(graphNodeList.getLast().getIndex());
 
                             }
@@ -128,7 +131,7 @@ public class GraphBuilder {
                             graphNodeIndex--;
                             prevNode = prevNode.getPrev();
                         }
-                        currentGraphNode.setPriority(1);
+                        currentGraphNode.setDelay(1);
                     }
                 }
             graphNodeList.add(currentGraphNode);
@@ -147,8 +150,65 @@ public class GraphBuilder {
                     maxPredecessorPriority = node.y().getPriority();
                 }
             }
-            currentNode.setPriority(maxPredecessorPriority + (currentNode.getPriority() * 10) + 1);
+            currentNode.setPriority(maxPredecessorPriority + (currentNode.getDelay() * 10) + 1);
             maxPredecessorPriority = 0;
+        }
+    }
+
+    public void schedule() {
+        int cycle = 1;
+        Map<GraphNode, Integer> ready = new HashMap<>();
+        Map<GraphNode, Integer> active = new HashMap<>();
+        Set<GraphNode> toRemove = new HashSet<>();
+
+        for (GraphNode node : graphNodeList) {
+            if (node.getSuccessors().isEmpty()) {
+                ready.put(node, node.getPriority());
+            }
+        }
+
+        GraphNode currentNode1;
+        int currentPrio;
+
+        while (!(ready.isEmpty() && active.isEmpty())) {
+            currentPrio = -1;
+            currentNode1 = null;
+            if (!ready.isEmpty()) {
+                for (Map.Entry<GraphNode, Integer> entry : ready.entrySet()) {
+                    if (entry.getValue() > currentPrio) {
+                        currentNode1 = entry.getKey();
+                        currentPrio = entry.getValue();
+                    }
+                }
+                ready.remove(currentNode1);
+                active.put(currentNode1, currentNode1.getDelay() + cycle);
+            }
+
+            if (currentNode1 != null) {
+                System.out.println(currentNode1.getLabel());
+            } else {
+                System.out.println("nop");
+            }
+
+            cycle++;
+
+
+            for (Map.Entry<GraphNode, Integer> entry : active.entrySet()) {
+                if (entry.getValue() <= cycle) {
+                    toRemove.add(entry.getKey());
+                    for (Pair<Integer, GraphNode> predecessor : entry.getKey().getPredecessors()) {
+                        predecessor.y().getSuccessors().remove(new Pair<>(predecessor.x(), entry.getKey()));
+                        if (predecessor.y().getSuccessors().isEmpty()) {
+                            ready.put(predecessor.y(), predecessor.y().getPriority());
+                        }
+                    }
+                }
+            }
+            for (GraphNode remove : toRemove) {
+                active.remove(remove);
+            }
+            toRemove.clear();
+
         }
     }
 

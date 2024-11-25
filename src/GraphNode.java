@@ -14,6 +14,7 @@ public class GraphNode {
     private Set<Pair<Integer, GraphNode>> successors;
     private Set<Pair<Integer, GraphNode>> predecessors;
     private Set<Integer> usedNodes;
+    private int delay;
     private int priority;
 
 
@@ -54,17 +55,21 @@ public class GraphNode {
         return priority;
     }
 
+    public void setDelay(int delay) {
+        this.delay = delay;
+    }
+
+    public int getDelay() {
+        return delay;
+    }
+
     public void addUsedNode(Integer node) {
         this.usedNodes.add(node);
     }
 
     @Override
     public String toString() {
-        StringBuilder str = new StringBuilder();
-        for (Pair<Integer, GraphNode> succesor : this.successors) {
-            str.append("(").append(succesor.y().index).append(",").append(succesor.x()).append(")");
-        }
-        return str.toString();
+        return this.label;
     }
 
     public String getLabel() {
