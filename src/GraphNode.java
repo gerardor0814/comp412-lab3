@@ -14,7 +14,7 @@ public class GraphNode {
     private Set<Pair<Integer, GraphNode>> successors;
     private Set<Pair<Integer, GraphNode>> predecessors;
     private Set<Integer> usedNodes;
-    private Integer priority;
+    private int priority;
 
 
     public GraphNode(String label, Integer index) {
@@ -23,6 +23,7 @@ public class GraphNode {
         this.successors = new HashSet<>();
         this.predecessors = new HashSet<>();
         this.usedNodes = new HashSet<>();
+        this.priority = 0;
     }
 
     public void addSuccessor(Integer type, GraphNode successor) {
@@ -45,15 +46,17 @@ public class GraphNode {
         return usedNodes.contains(node);
     }
 
-    public void setPriority(Integer priority) {
+    public void setPriority(int priority) {
         this.priority = priority;
+    }
+
+    public int getPriority() {
+        return priority;
     }
 
     public void addUsedNode(Integer node) {
         this.usedNodes.add(node);
     }
-
-
 
     @Override
     public String toString() {

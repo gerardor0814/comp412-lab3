@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class GraphBuilder {
 
@@ -47,7 +44,7 @@ public class GraphBuilder {
 
                     }
                     // store
-                    else{
+                    else {
                         //use
                         currentGraphNode.addSuccessor(currentNode.getVR(1), this.graphMap.get(currentNode.getVR(1)));
                         this.graphMap.get(currentNode.getVR(1)).addPredecessor(currentNode.getVR(1), currentGraphNode);
@@ -74,13 +71,15 @@ public class GraphBuilder {
                             prevNode = prevNode.getPrev();
                         }
                         }
-
+                    currentGraphNode.setPriority(6);
                     }
                     case 1 -> {
                         // loadI
 
                         // def
                         this.graphMap.put(currentNode.getVR(3), currentGraphNode);
+
+                        currentGraphNode.setPriority(1);
 
                     }
                     case 2 -> {
@@ -96,6 +95,12 @@ public class GraphBuilder {
 
                         // def
                         this.graphMap.put(currentNode.getVR(3), currentGraphNode);
+
+                        if (currentNode.getOpCode() == 2) {
+                            currentGraphNode.setPriority(3);
+                        } else {
+                            currentGraphNode.setPriority(1);
+                        }
 
                     }
 
@@ -123,8 +128,7 @@ public class GraphBuilder {
                             graphNodeIndex--;
                             prevNode = prevNode.getPrev();
                         }
-
-
+                        currentGraphNode.setPriority(1);
                     }
                 }
             graphNodeList.add(currentGraphNode);
@@ -133,9 +137,18 @@ public class GraphBuilder {
         }
     }
 
-    public void makePriorityList() {
-        for (int i = graphNodeList.size(); i >= 0; i--) {
-
+    public void addPriorities() {
+        GraphNode currentNode;
+        int maxPredecessorPriority = 0;
+        for (int i = this.graphNodeList.size() - 2; i >= 0; i--) {
+            currentNode = graphNodeList.get(i);
+            for (Pair<Integer, GraphNode> node : currentNode.getPredecessors()) {
+                if (node.y().getPriority() > maxPredecessorPriority) {
+                    maxPredecessorPriority = node.y().getPriority();
+                }
+            }
+            currentNode.setPriority(maxPredecessorPriority + (currentNode.getPriority() * 10) + 1);
+            maxPredecessorPriority = 0;
         }
     }
 
@@ -153,7 +166,7 @@ public class GraphBuilder {
         String currentLabel = "";
         graphMapString.append("digraph DG {\n");
         for (GraphNode node : graphNodeList) {
-            graphMapString.append(node.getIndex()).append(" [label=\"").append(node.getLabel()).append("\"];\n");
+            graphMapString.append(node.getIndex()).append(" [label=\"").append(node.getLabel()).append("\nprio: ").append(node.getPriority()).append("\"];\n");
         }
 
         for (GraphNode node : graphNodeList) {
