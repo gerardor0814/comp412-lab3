@@ -41,6 +41,7 @@ public class Main {
             GraphBuilder graphBuilder = new GraphBuilder(parser.getHead());
             graphBuilder.build();
             graphBuilder.addPriorities();
+            System.err.println(graphBuilder.makeDotFile());
             graphBuilder.schedule();
         } else {
             System.err.println("Due to syntax errors, run terminates");

@@ -22,6 +22,7 @@ public class GraphBuilder {
         IRNode currentNode = this.head;
         IRNode prevNode = null;
         GraphNode currentGraphNode;
+
         while (currentNode != null) {
             currentGraphNode = new GraphNode(currentNode, currentNode.getLine());
             switch (currentNode.getOpCategory()) {
@@ -29,12 +30,19 @@ public class GraphBuilder {
                     // load
                     if (currentNode.getOpCode() == 0) {
                         // conflict edge
-                        if (prevNode != null) {
+                        int graphNodeIndex = graphNodeList.size() - 1;
+                        while(prevNode != null) {
                             // store
                             if (prevNode.getOpCategory() == 0 && prevNode.getOpCode() != 0) {
-                                currentGraphNode.addSuccessor(-1, graphNodeList.getLast());
-                                graphNodeList.getLast().addPredecessor(-1, currentGraphNode);
+                                if (!currentGraphNode.hasSuccessor(graphNodeList.get(graphNodeIndex))) {
+                                    currentGraphNode.addSuccessor(-1, graphNodeList.get(graphNodeIndex));
+                                    graphNodeList.get(graphNodeIndex).addPredecessor(-1, currentGraphNode);
+                                    currentGraphNode.addUsedNode(graphNodeList.get(graphNodeIndex));
+                                    break;
+                                }
                             }
+                            graphNodeIndex--;
+                            prevNode = prevNode.getPrev();
                         }
                         // use
                         currentGraphNode.addSuccessor(currentNode.getVR(1), this.graphMap.get(currentNode.getVR(1)));
@@ -49,21 +57,21 @@ public class GraphBuilder {
                         //use
                         currentGraphNode.addSuccessor(currentNode.getVR(1), this.graphMap.get(currentNode.getVR(1)));
                         this.graphMap.get(currentNode.getVR(1)).addPredecessor(currentNode.getVR(1), currentGraphNode);
-                        currentGraphNode.addUsedNode(this.graphMap.get(currentNode.getVR(1)).getIndex());
+                        currentGraphNode.addUsedNode(this.graphMap.get(currentNode.getVR(1)));
 
                         //use
                         currentGraphNode.addSuccessor(currentNode.getVR(3), this.graphMap.get(currentNode.getVR(3)));
                         this.graphMap.get(currentNode.getVR(3)).addPredecessor(currentNode.getVR(3), currentGraphNode);
-                        currentGraphNode.addUsedNode(this.graphMap.get(currentNode.getVR(3)).getIndex());
+                        currentGraphNode.addUsedNode(this.graphMap.get(currentNode.getVR(3)));
 
                         // serial edge
                         int graphNodeIndex = graphNodeList.size() - 1;
                         while (prevNode != null) {
-                            if (!currentGraphNode.hasSuccessor(graphNodeList.get(graphNodeIndex).getIndex())) {
+                            if (!currentGraphNode.hasSuccessor(graphNodeList.get(graphNodeIndex))) {
                                 if (prevNode.getOpCategory() == 0 || prevNode.getOpCategory() == 3) {
                                     currentGraphNode.addSuccessor(-2, graphNodeList.get(graphNodeIndex));
                                     graphNodeList.get(graphNodeIndex).addPredecessor(-2, currentGraphNode);
-                                    currentGraphNode.addUsedNode(graphNodeList.get(graphNodeIndex).getIndex());
+                                    currentGraphNode.addUsedNode(graphNodeList.get(graphNodeIndex));
                                 }
                             }
                             if (prevNode.getOpCategory() == 0 && prevNode.getOpCode() != 0) {
@@ -109,24 +117,29 @@ public class GraphBuilder {
                     // output
                     case 3 -> {
                         // conflict edge
-                        if (prevNode != null) {
+                        int graphNodeIndex = graphNodeList.size() - 1;
+                        while (prevNode != null) {
                             // store
                             if (prevNode.getOpCategory() == 0 && prevNode.getOpCode() != 0) {
-                                currentGraphNode.addSuccessor(-1, graphNodeList.getLast());
-                                graphNodeList.getLast().addPredecessor(-1, currentGraphNode);
-                                currentGraphNode.addUsedNode(graphNodeList.getLast().getIndex());
-
+                                currentGraphNode.addSuccessor(-1, graphNodeList.get(graphNodeIndex));
+                                graphNodeList.get(graphNodeIndex).addPredecessor(-1, currentGraphNode);
+                                currentGraphNode.addUsedNode(graphNodeList.get(graphNodeIndex));
+                                break;
                             }
+                            graphNodeIndex--;
                             prevNode = prevNode.getPrev();
-
                         }
-                        int graphNodeIndex = graphNodeList.size() - 2;
+
+                        prevNode = currentNode.getPrev();
+
+                        graphNodeIndex = graphNodeList.size() - 1;
                         while (prevNode != null) {
-                            if (!currentGraphNode.hasSuccessor(graphNodeList.get(graphNodeIndex).getIndex())) {
+                            if (!currentGraphNode.hasSuccessor(graphNodeList.get(graphNodeIndex))) {
                                 if (prevNode.getOpCategory() == 3) {
                                     currentGraphNode.addSuccessor(-2, graphNodeList.get(graphNodeIndex));
                                     graphNodeList.get(graphNodeIndex).addPredecessor(-2, currentGraphNode);
-                                    currentGraphNode.addUsedNode(graphNodeList.get(graphNodeIndex).getIndex());
+                                    currentGraphNode.addUsedNode(graphNodeList.get(graphNodeIndex));
+                                    break;
                                 }
                             }
                             graphNodeIndex--;
@@ -292,7 +305,7 @@ public class GraphBuilder {
         String currentLabel = "";
         graphMapString.append("digraph DG {\n");
         for (GraphNode node : graphNodeList) {
-            graphMapString.append(node.getIndex()).append(" [label=\"").append(node.getOp().rewrittenString()).append("\nprio: ").append(node.getPriority()).append("\"];\n");
+            graphMapString.append(node.getIndex()).append(" [label=\"").append(node.getOp().getLine()).append(": ").append(node.getOp().rewrittenString()).append("\nprio: ").append(node.getPriority()).append("\"];\n");
         }
 
         for (GraphNode node : graphNodeList) {

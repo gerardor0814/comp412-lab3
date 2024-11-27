@@ -13,7 +13,7 @@ public class GraphNode {
     private IRNode op;
     private Set<Pair<Integer, GraphNode>> successors;
     private Set<Pair<Integer, GraphNode>> predecessors;
-    private Set<Integer> usedNodes;
+    private Set<GraphNode> usedNodes;
     private int delay;
     private int priority;
 
@@ -43,7 +43,7 @@ public class GraphNode {
         return predecessors;
     }
 
-    public boolean hasSuccessor(Integer node) {
+    public boolean hasSuccessor(GraphNode node) {
         return usedNodes.contains(node);
     }
 
@@ -63,7 +63,7 @@ public class GraphNode {
         return delay;
     }
 
-    public void addUsedNode(Integer node) {
+    public void addUsedNode(GraphNode node) {
         this.usedNodes.add(node);
     }
 
