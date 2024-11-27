@@ -43,6 +43,7 @@ public class Main {
             graphBuilder.addPriorities();
             System.err.println(graphBuilder.makeDotFile());
             graphBuilder.schedule();
+            System.out.println("done");
         } else {
             System.err.println("Due to syntax errors, run terminates");
         }

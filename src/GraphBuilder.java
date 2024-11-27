@@ -237,21 +237,43 @@ public class GraphBuilder {
                                 ready.remove(currentNode2);
                                 active.put(currentNode2, currentNode2.getDelay() + cycle);
                             }
-                            ready.put(temp, temp.getPriority());
                         }
+                        ready.put(temp, temp.getPriority());
                     }
                 }
             }
 
             if (currentNode1 != null) {
                 if (currentNode1.getOp().getOpCategory() == 2 && currentNode1.getOp().getOpCode() == 2) {
-                    temp = currentNode2;
-                    currentNode2 = currentNode1;
-                    currentNode1 = temp;
+                    if (currentNode2 != null) {
+                        if (currentNode1.getOp().getOpCategory() != 2 && currentNode1.getOp().getOpCode() != 2) {
+                            temp = currentNode2;
+                            currentNode2 = currentNode1;
+                            currentNode1 = temp;
+                        } else {
+                            currentPrio = -1;
+                            temp = currentNode1;
+                            currentNode1 = null;
+                            if (!ready.isEmpty()) {
+                                for (Map.Entry<GraphNode, Integer> entry : ready.entrySet()) {
+                                    if (entry.getValue() > currentPrio && entry.getKey().getOp().getOpCategory() != 0) {
+                                        currentNode1 = entry.getKey();
+                                        currentPrio = entry.getValue();
+                                    }
+                                }
+                                if (currentNode1 != null) {
+                                    ready.remove(currentNode2);
+                                    active.put(currentNode2, currentNode2.getDelay() + cycle);
+                                }
+                            }
+                            ready.put(temp, temp.getPriority());
+                        }
+                    } else {
+                        currentNode2 = currentNode1;
+                        currentNode1 = null;
+                    }
                 }
             }
-
-
 
             System.out.print("[ ");
             if (currentNode1 != null) {
