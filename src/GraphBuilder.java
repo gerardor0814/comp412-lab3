@@ -274,22 +274,44 @@ public class GraphBuilder {
                             currentNode2 = currentNode1;
                             currentNode1 = temp;
                         } else {
-                            currentPrio = -1;
-                            temp = currentNode1;
-                            currentNode1 = null;
-                            if (!ready.isEmpty()) {
-                                for (Map.Entry<GraphNode, Integer> entry : ready.entrySet()) {
-                                    if (entry.getValue() > currentPrio && entry.getKey().getOp().getOpCategory() != 2 && entry.getKey().getOp().getOpCode() != 2) {
-                                        currentNode1 = entry.getKey();
-                                        currentPrio = entry.getValue();
+                            if (currentNode1.getPriority() < currentNode2.getPriority()) {
+                                currentPrio = -1;
+                                temp = currentNode1;
+                                currentNode1 = null;
+                                if (!ready.isEmpty()) {
+                                    for (Map.Entry<GraphNode, Integer> entry : ready.entrySet()) {
+                                        if (entry.getValue() > currentPrio && entry.getKey().getOp().getOpCategory() != 2 && entry.getKey().getOp().getOpCode() != 2) {
+                                            currentNode1 = entry.getKey();
+                                            currentPrio = entry.getValue();
+                                        }
+                                    }
+                                    if (currentNode1 != null) {
+                                        ready.remove(currentNode2);
+                                        active.put(currentNode2, currentNode2.getDelay() + cycle);
                                     }
                                 }
-                                if (currentNode1 != null) {
-                                    ready.remove(currentNode2);
-                                    active.put(currentNode2, currentNode2.getDelay() + cycle);
+                                ready.put(temp, temp.getPriority());
+                            } else {
+                                currentPrio = -1;
+                                temp = currentNode2;
+                                currentNode2 = null;
+                                if (!ready.isEmpty()) {
+                                    for (Map.Entry<GraphNode, Integer> entry : ready.entrySet()) {
+                                        if (entry.getValue() > currentPrio && entry.getKey().getOp().getOpCategory() != 2 && entry.getKey().getOp().getOpCode() != 2) {
+                                            currentNode2 = entry.getKey();
+                                            currentPrio = entry.getValue();
+                                        }
+                                    }
+                                    if (currentNode2 != null) {
+                                        ready.remove(currentNode1);
+                                        active.put(currentNode1, currentNode1.getDelay() + cycle);
+                                    }
                                 }
+                                ready.put(temp, temp.getPriority());
+                                temp = currentNode2;
+                                currentNode2 = currentNode1;
+                                currentNode1 = temp;
                             }
-                            ready.put(temp, temp.getPriority());
                         }
                     } else {
                         currentNode2 = currentNode1;
