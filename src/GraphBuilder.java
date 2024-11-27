@@ -124,7 +124,8 @@ public class GraphBuilder {
                         while (prevNode != null) {
                             if (!currentGraphNode.hasSuccessor(graphNodeList.get(graphNodeIndex).getIndex())) {
                                 if (prevNode.getOpCategory() == 3) {
-                                    currentGraphNode.addSuccessor(-1, graphNodeList.get(graphNodeIndex));
+                                    currentGraphNode.addSuccessor(-2, graphNodeList.get(graphNodeIndex));
+                                    graphNodeList.get(graphNodeIndex).addPredecessor(-2, currentGraphNode);
                                     currentGraphNode.addUsedNode(graphNodeList.get(graphNodeIndex).getIndex());
                                 }
                             }
@@ -143,7 +144,7 @@ public class GraphBuilder {
     public void addPriorities() {
         GraphNode currentNode;
         int maxPredecessorPriority = 0;
-        for (int i = this.graphNodeList.size() - 2; i >= 0; i--) {
+        for (int i = this.graphNodeList.size() - 1; i >= 0; i--) {
             currentNode = graphNodeList.get(i);
             for (Pair<Integer, GraphNode> node : currentNode.getPredecessors()) {
                 if (node.y().getPriority() > maxPredecessorPriority) {
@@ -201,10 +202,29 @@ public class GraphBuilder {
 
             // if second node is load or store
             if (currentNode2 != null) {
-                if (currentNode2.getOp().getOpCategory() == 0 && currentNode1.getOp().getOpCategory() != 0) {
-                     temp = currentNode2;
-                     currentNode2 = currentNode1;
-                     currentNode1 = temp;
+                if (currentNode2.getOp().getOpCategory() == 0) {
+                    // and it is not another load or store
+                    if (currentNode1.getOp().getOpCategory() != 0) {
+                        temp = currentNode2;
+                        currentNode2 = currentNode1;
+                        currentNode1 = temp;
+                    // if it is another load or store, find a new non load or store op
+                    } else {
+                        currentPrio = -1;
+                        temp = currentNode2;
+                        currentNode2 = null;
+                        if (!ready.isEmpty()) {
+                            for (Map.Entry<GraphNode, Integer> entry : ready.entrySet()) {
+                                if (entry.getValue() > currentPrio && entry.getKey().getOp().getOpCategory() != 0) {
+                                    currentNode2 = entry.getKey();
+                                    currentPrio = entry.getValue();
+                                }
+                            }
+                            ready.remove(currentNode2);
+                            active.put(currentNode2, currentNode2.getDelay() + cycle);
+                            ready.put(temp, temp.getPriority());
+                        }
+                    }
                 }
             }
 
