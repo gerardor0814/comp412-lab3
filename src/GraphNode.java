@@ -10,7 +10,7 @@ public class GraphNode {
      **/
 
     private Integer index;
-    private String label;
+    private IRNode op;
     private Set<Pair<Integer, GraphNode>> successors;
     private Set<Pair<Integer, GraphNode>> predecessors;
     private Set<Integer> usedNodes;
@@ -18,8 +18,8 @@ public class GraphNode {
     private int priority;
 
 
-    public GraphNode(String label, Integer index) {
-        this.label = label;
+    public GraphNode(IRNode op, Integer index) {
+        this.op = op;
         this.index = index;
         this.successors = new HashSet<>();
         this.predecessors = new HashSet<>();
@@ -69,11 +69,11 @@ public class GraphNode {
 
     @Override
     public String toString() {
-        return this.label;
+        return this.op.rewrittenString();
     }
 
-    public String getLabel() {
-        return label;
+    public IRNode getOp() {
+        return op;
     }
 
     public Integer getIndex() {

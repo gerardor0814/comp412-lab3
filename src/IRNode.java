@@ -129,7 +129,7 @@ public class IRNode {
                 body = "";
             }
         }
-        return this.line + ":   " + operation + body;
+        return operation + body;
     }
 
     public String reallocatedString() {

@@ -23,7 +23,7 @@ public class GraphBuilder {
         IRNode prevNode = null;
         GraphNode currentGraphNode;
         while (currentNode != null) {
-            currentGraphNode = new GraphNode(currentNode.rewrittenString(), currentNode.getLine());
+            currentGraphNode = new GraphNode(currentNode, currentNode.getLine());
             switch (currentNode.getOpCategory()) {
                 case 0 -> {
                     // load
@@ -169,6 +169,7 @@ public class GraphBuilder {
 
         GraphNode currentNode1;
         GraphNode currentNode2;
+        GraphNode temp;
         int currentPrio;
 
         while (!(ready.isEmpty() && active.isEmpty())) {
@@ -198,16 +199,23 @@ public class GraphBuilder {
                 active.put(currentNode2, currentNode2.getDelay() + cycle);
             }
 
+            if (currentNode2 != null) {
+                if (currentNode2.getOp().getOpCategory() == 0 && currentNode1.getOp().getOpCategory() != 0) {
+                     temp = currentNode2;
+                     currentNode2 = currentNode1;
+                     currentNode1 = temp;
+                }
+            }
             System.out.print("[ ");
             if (currentNode1 != null) {
-                System.out.print(currentNode1.getLabel().substring(6));
+                System.out.print(currentNode1.getOp().rewrittenString());
             } else {
                 System.out.print("nop");
             }
 
             System.out.print(" ; ");
             if (currentNode2 != null) {
-                System.out.print(currentNode2.getLabel().substring(6));
+                System.out.print(currentNode2.getOp().rewrittenString());
             } else {
                 System.out.print("nop");
             }
@@ -250,7 +258,7 @@ public class GraphBuilder {
         String currentLabel = "";
         graphMapString.append("digraph DG {\n");
         for (GraphNode node : graphNodeList) {
-            graphMapString.append(node.getIndex()).append(" [label=\"").append(node.getLabel()).append("\nprio: ").append(node.getPriority()).append("\"];\n");
+            graphMapString.append(node.getIndex()).append(" [label=\"").append(node.getOp().rewrittenString()).append("\nprio: ").append(node.getPriority()).append("\"];\n");
         }
 
         for (GraphNode node : graphNodeList) {
