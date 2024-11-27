@@ -220,8 +220,10 @@ public class GraphBuilder {
                                     currentPrio = entry.getValue();
                                 }
                             }
-                            ready.remove(currentNode2);
-                            active.put(currentNode2, currentNode2.getDelay() + cycle);
+                            if (currentNode2 != null) {
+                                ready.remove(currentNode2);
+                                active.put(currentNode2, currentNode2.getDelay() + cycle);
+                            }
                             ready.put(temp, temp.getPriority());
                         }
                     }
