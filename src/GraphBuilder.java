@@ -199,6 +199,7 @@ public class GraphBuilder {
                 active.put(currentNode2, currentNode2.getDelay() + cycle);
             }
 
+            // if second node is load or store
             if (currentNode2 != null) {
                 if (currentNode2.getOp().getOpCategory() == 0 && currentNode1.getOp().getOpCategory() != 0) {
                      temp = currentNode2;
@@ -206,6 +207,17 @@ public class GraphBuilder {
                      currentNode1 = temp;
                 }
             }
+
+            if (currentNode1 != null) {
+                if (currentNode1.getOp().getOpCategory() == 2 && currentNode1.getOp().getOpCode() == 2) {
+                    temp = currentNode2;
+                    currentNode2 = currentNode1;
+                    currentNode1 = temp;
+                }
+            }
+
+
+
             System.out.print("[ ");
             if (currentNode1 != null) {
                 System.out.print(currentNode1.getOp().rewrittenString());
