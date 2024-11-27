@@ -256,7 +256,7 @@ public class GraphBuilder {
                             currentNode1 = null;
                             if (!ready.isEmpty()) {
                                 for (Map.Entry<GraphNode, Integer> entry : ready.entrySet()) {
-                                    if (entry.getValue() > currentPrio && entry.getKey().getOp().getOpCategory() != 0) {
+                                    if (entry.getValue() > currentPrio && entry.getKey().getOp().getOpCategory() != 2 && entry.getKey().getOp().getOpCode() != 2) {
                                         currentNode1 = entry.getKey();
                                         currentPrio = entry.getValue();
                                     }
